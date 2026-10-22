@@ -1,0 +1,19 @@
+<%- include('partials/head', { title: 'Catalog' }) %>
+<% if (random) { %>
+  <p class="count">Random picks from <%= total.toLocaleString() %> movies · <a href="/">🔀 Shuffle</a></p>
+<% } else { %>
+  <p class="count"><%= total.toLocaleString() %> movies</p>
+<% } %>
+<% if (!items.length) { %><p>No movies found.</p><% } %>
+<div class="grid">
+  <% items.forEach(m => { %><%- include('partials/card', { m }) %><% }) %>
+</div>
+<%
+  const qs = (p) => '/?' + new URLSearchParams({ ...(q && { q }), ...(genre && { genre }), page: p }).toString();
+%>
+<% if (!random) { %><nav class="pager">
+  <% if (page > 1) { %><a href="<%= qs(page - 1) %>">← Prev</a><% } %>
+  <span>Page <%= page %> of <%= pages %></span>
+  <% if (page < pages) { %><a href="<%= qs(page + 1) %>">Next →</a><% } %>
+</nav><% } %>
+<%- include('partials/foot') %>

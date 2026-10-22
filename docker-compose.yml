@@ -1,0 +1,69 @@
+services:
+  mongo:
+    image: mongo:8
+    container_name: movies-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-shot job: loads movies_summary.csv into movies.movies (skipped if already loaded)
+  mongo-seed:
+    image: mongo:8
+    container_name: movies-seed
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ./movies_archive/movies_summary.csv:/data/movies_summary.csv:ro
+      - ./seed.sh:/seed.sh:ro
+    entrypoint: ["bash", "/seed.sh"]
+
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: movies-chroma
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/data
+
+  # One-shot job: loads movies_embeddings.jsonl into the Chroma collection "movies"
+  chroma-seed:
+    image: python:3.12-slim
+    container_name: movies-chroma-seed
+    depends_on:
+      - chroma
+    volumes:
+      - ./movies_embeddings.jsonl:/data/movies_embeddings.jsonl:ro
+      - ./movies_archive/movies_summary.csv:/data/movies_summary.csv:ro
+      - ./load_chroma.py:/load_chroma.py:ro
+    command: ["sh", "-c", "pip install -q chromadb-client==1.4.1 && python /load_chroma.py"]
+
+  web:
+    build: ./app
+    container_name: movies-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      MONGO_URL: mongodb://admin:admin123@mongo:27017/movies?authSource=admin
+      CHROMA_URL: http://chroma:8000
+    depends_on:
+      mongo:
+        condition: service_healthy
+      chroma:
+        condition: service_started
+
+volumes:
+  mongo_data:
+  chroma_data:

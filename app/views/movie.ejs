@@ -1,0 +1,33 @@
+<%- include('partials/head', { title: movie.title }) %>
+<a class="back" href="javascript:history.length > 1 ? history.back() : (location.href='/')">← Back</a>
+<article class="detail">
+  <% if (movie.poster_url) { %>
+    <img class="poster" src="<%= movie.poster_url %>" alt="Poster of <%= movie.title %>">
+  <% } else { %>
+    <div class="noposter poster">No poster</div>
+  <% } %>
+  <div>
+    <h1><%= movie.title %> <small><%= movie.year ? '(' + movie.year + ')' : '' %></small></h1>
+    <p class="chips"><% (movie.genres || []).forEach(g => { %><a href="/?genre=<%= encodeURIComponent(g) %>"><%= g %></a><% }) %></p>
+    <p><%= movie.overview || 'No overview available.' %></p>
+    <dl>
+      <% if (movie.release_date) { %><dt>Release date</dt><dd><%= movie.release_date.toISOString().slice(0, 10) %></dd><% } %>
+      <% if (movie.director) { %><dt>Director</dt><dd><%= movie.director %></dd><% } %>
+      <% if (movie.cast && movie.cast.length) { %><dt>Cast</dt><dd><%= movie.cast.join(', ') %></dd><% } %>
+      <% if (movie.country && movie.country.length) { %><dt>Country</dt><dd><%= movie.country.join(', ') %></dd><% } %>
+    </dl>
+  </div>
+</article>
+<section>
+  <h2>Similar movies</h2>
+  <% if (similarError) { %>
+    <p class="note">Similar movies are currently unavailable.</p>
+  <% } else if (!similar.length) { %>
+    <p class="note">No similar movies found.</p>
+  <% } else { %>
+    <div class="grid">
+      <% similar.forEach(m => { %><%- include('partials/card', { m }) %><% }) %>
+    </div>
+  <% } %>
+</section>
+<%- include('partials/foot') %>

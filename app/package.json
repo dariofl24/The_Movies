@@ -1,0 +1,13 @@
+{
+  "name": "movies-catalog",
+  "version": "1.0.0",
+  "private": true,
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "chromadb": "^3.5.0",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "mongodb": "^6.12.0"
+  }
+}

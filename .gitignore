@@ -1,0 +1,13 @@
+# Large generated data
+movies_embeddings.jsonl
+embed.log
+
+# Source dataset: keep only the CSV the project uses (~23 MB), ignore the rest
+movies_archive/*
+!movies_archive/movies_summary.csv
+
+# Dependencies
+node_modules/
+
+# OS / editor
+.DS_Store

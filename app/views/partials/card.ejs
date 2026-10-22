@@ -1,0 +1,11 @@
+<a class="card" href="/movie/<%= m.id %>">
+  <% if (m.poster_url) { %>
+    <img src="<%= m.poster_url %>" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'noposter',textContent:'No poster'}))">
+  <% } else { %>
+    <div class="noposter">No poster</div>
+  <% } %>
+  <div class="meta">
+    <strong><%= m.title %></strong>
+    <span><%= m.year || '' %><%= m.year && m.genres && m.genres.length ? ' · ' : '' %><%= (m.genres || []).slice(0, 2).join(', ') %></span>
+  </div>
+</a>
